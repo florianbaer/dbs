@@ -17,8 +17,11 @@ class DriverReader(object):
     def parse_csv(self):
         self.csv = pandas.read_csv(self.path, ',', encoding="ISO-8859-1")
         print(list(self.csv.columns.values))
+        self.csv.set_index('driverId', inplace=True)
 
     def get_driver(self, driver_id):
-        row = self.csv.loc[self.csv['driverId'] == driver_id]
-        return Driver(row['driverId'], row['forename'], row['surname'],
-                      row['nationality'])
+        row = self.csv.loc[[driver_id], :]
+        #print(row['forename'])
+        #print(str(row['forename']))
+        return Driver(driver_id, row['forename'].values[0], row['surname'].values[0],
+                      row['nationality'].values[0])

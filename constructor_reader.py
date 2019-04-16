@@ -15,9 +15,10 @@ class ConstructorReader(object):
 
     def parse_csv(self):
         self.csv = pandas.read_csv(self.path, ',', encoding="ISO-8859-1")
+        print(list(self.csv.columns.values))
+        self.csv.set_index('constructorId', inplace=True)
         # print(csv)
-        # print(list(self.csv.columns.values))
 
     def get_constructor(self, constructor_id):
-        row = self.csv.loc[self.csv['constructorId'] == constructor_id]
-        return Constructor(row['constructorId'].values[0], row['name'].values[0], row['nationality'].values[0])
+        row = self.csv.loc[[constructor_id], :]
+        return Constructor(constructor_id, row['name'].values[0], row['nationality'].values[0])

@@ -1,8 +1,11 @@
+from circuit_reader import CircuitsReader
 from constructor_reader import ConstructorReader
 from driver_reader import DriverReader
 from races_reader import RacesReader
 from results_reader import ResultsReader
 from pyravendb.store import document_store
+
+from status_reader import StatusReader
 
 
 def read_driver():
@@ -11,11 +14,22 @@ def read_driver():
     driver_reader.parse_csv()
     return driver_reader
 
-def read_races():
+def read_races(circuit_reader):
     path = "data/races.csv"
-    races_reader = RacesReader(path)
-    races_reader.parse_csv()
-    return races_reader
+    races_reader = RacesReader(path, circuit_reader)
+    return races_reader.parse_csv()
+
+def read_circuits():
+    path = "data/circuits.csv"
+    circuits_reader = CircuitsReader(path)
+    circuits_reader.parse_csv()
+    return circuits_reader
+
+def read_status():
+    path = "data/status.csv"
+    status_reader = StatusReader(path)
+    status_reader.parse_csv()
+    return status_reader
 
 def read_constructor():
     path = "data/constructors.csv"
@@ -24,10 +38,10 @@ def read_constructor():
     return constructor_reader
 
 
-def read_results(driver_reader, constructor_reader):
+def read_results(driver_reader, constructor_reader, status_reader):
     path = "data/results.csv"
-    races_reader = ResultsReader(path, driver_reader, constructor_reader)
-    return races_reader.parse_csv()
+    results_reader = ResultsReader(path, driver_reader, constructor_reader, status_reader)
+    return results_reader.parse_csv()
 
 
 
@@ -35,31 +49,25 @@ def main():
     store = document_store.DocumentStore(urls=["http://localhost:8080"], database="RacerAnalysis")
     store.initialize()
 
+
+    circuits_reader = read_circuits()
+    races_reader = read_races(circuits_reader)
+
+    for datastore_result in races_reader:
+        with store.open_session() as session:
+            session.store(datastore_result)
+            session.save_changes()
+
+
     driver_reader = read_driver()
     constructor_reader = read_constructor()
-    results = read_results(driver_reader, constructor_reader)
+    status_reader = read_status()
+    results = read_results(driver_reader, constructor_reader, status_reader)
 
 
-    with store.open_session() as session:
-        for datastore_result in results:
-            session.store(datastore_result.race_result)
-            print(datastore_result.race_result.raceId)
-            print(datastore_result.race_result.resultId)
-            print(datastore_result.race_result.status)
-            print(datastore_result.race_result.positionOrder)
-            print(datastore_result.race_result.points)
-            session.save_changes()
-            session.store(datastore_result.driver)
-            print(datastore_result.driver.driver_id)
-            print(datastore_result.driver.forename)
-            print(datastore_result.driver.surname)
-            print(datastore_result.driver.nationality)
-            session.save_changes()
-            session.store(datastore_result.constructor)
-            print(datastore_result.constructor)
-            print(datastore_result.constructor.constructor_id)
-            print(datastore_result.constructor.name)
-            print(datastore_result.constructor.constructor_id)
+    for datastore_result in results:
+        with store.open_session() as session:
+            session.store(datastore_result)
             session.save_changes()
 
     races_reader = read_races()
