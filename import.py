@@ -70,8 +70,5 @@ def main():
             session.store(datastore_result)
             session.save_changes()
 
-    races_reader = read_races()
-
-
 if __name__ == "__main__":
     main()
