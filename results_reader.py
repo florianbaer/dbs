@@ -27,7 +27,7 @@ class ResultsReader(object):
         races = []
         for index, row in self.csv.iterrows():
             races.append(RaceResult("result/" + str(row['resultId']),
-                                    "race/" + str(row['raceId']),
+                                    row['raceId'],
                                     row['positionOrder'],
                                     row['points'],
                                     self.constructor_reader.get_constructor(row['constructorId']),
