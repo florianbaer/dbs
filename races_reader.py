@@ -16,6 +16,7 @@ class RacesReader(object):
 
     def parse_csv(self):
         self.csv = pandas.read_csv(self.path, ',', encoding="ISO-8859-1")
+        # self.csv.set_index('raceId', inplace=True)
         races = []
         for index, row in self.csv.iterrows():
             races.append(Race("race/" + str(row['raceId']),
@@ -24,3 +25,8 @@ class RacesReader(object):
                                     row['year'],
                                     self.circuit_reader.get_circuit(row['circuitId'])))
         return races
+
+    def get_name_by_id(self, raceId):
+        row = self.csv.loc[[raceId], :]
+        return row['name'].values[0]
+
