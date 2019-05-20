@@ -38,9 +38,9 @@ def read_constructor():
     return constructor_reader
 
 
-def read_results(driver_reader, constructor_reader, status_reader):
+def read_results(driver_reader, constructor_reader, status_reader, races_reader):
     path = "data/results.csv"
-    results_reader = ResultsReader(path, driver_reader, constructor_reader, status_reader)
+    results_reader = ResultsReader(path, driver_reader, constructor_reader, status_reader, races_reader)
     return results_reader.parse_csv()
 
 
@@ -62,7 +62,10 @@ def main():
     driver_reader = read_driver()
     constructor_reader = read_constructor()
     status_reader = read_status()
-    results = read_results(driver_reader, constructor_reader, status_reader)
+    path = "data/races.csv"
+    reader = RacesReader(path, circuits_reader)
+    reader.parse_csv()
+    results = read_results(driver_reader, constructor_reader, status_reader, reader)
 
 
     for datastore_result in results:
