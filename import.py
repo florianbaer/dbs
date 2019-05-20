@@ -46,7 +46,7 @@ def read_results(driver_reader, constructor_reader, status_reader):
 
 
 def main():
-    store = document_store.DocumentStore(urls=["http://localhost:8080"], database="RacerAnalysis")
+    store = document_store.DocumentStore(urls=["https://a.dbshslu19.ravendb.community:8443"], database="RacerAnalysis", certificate='/home/tim/certificate-test-tim/timimportskript.pem')
     store.initialize()
 
 
